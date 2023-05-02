@@ -1,0 +1,69 @@
+plugins {
+	id 'java'
+	id 'checkstyle'
+    id 'jacoco'
+    id 'findbugs'
+	id 'org.springframework.boot' version '2.6.9'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+
+	id 'com.palantir.jacoco-coverage' version '0.4.0'
+    id 'com.palantir.jacoco-full-report' version '0.4.0'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+jar {
+    baseName = "app.jar"
+}
+
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'	
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+jacocoCoverage {
+    fileThreshold 0.8
+    fileThreshold 0.0, 'Main.java'
+}
+
+checkstyle {
+    configFile = file("checkstyle.xml")
+    ignoreFailures = false
+    toolVersion = '7.0'
+    sourceSets = [sourceSets.main]
+}
+
+findbugs {
+    toolVersion = '3.0.1'
+    sourceSets = [sourceSets.main]
+    ignoreFailures = false
+    reportLevel = 'medium'
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+}
+
+check.dependsOn 'checkCoverage'
